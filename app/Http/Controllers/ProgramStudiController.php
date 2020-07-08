@@ -26,17 +26,33 @@ class ProgramStudiController extends Controller
      */
     public function index(Request $request)
     {
+        if ($request->searchbox) {
+            $program_studi = $this->search($request->searchbox);
+        } else {
+            $program_studi = $this->program_studi_model;
+        }
+        $program_studi = $program_studi->paginate(15);
+        $program_studi->appends($request->all())->render();
+
+
         $breadcrumbs = $request->segments();
         $breadcrumbs = $this->breadcrumbs_helper->make($breadcrumbs);
         $data = [
             'title' => 'Program Studi',
             'breadcrumbs' => $breadcrumbs,
-            'program_studi' => $this->program_studi_model->paginate(15)
+            'program_studi' => $program_studi
         ];
 
         echo "<script>var program_studi = " . $data['program_studi']->toJson() . "</script>";
 
         return view('program_studi.list', $data);
+    }
+
+
+    public function search($string = "")
+    {
+        $program_studi = $this->program_studi_model->where('kode_prodi', 'like', '%' . $string . '%')->orwhere('nama_prodi', 'like', '%' . $string . '%');
+        return $program_studi;
     }
 
     /**

@@ -29,18 +29,33 @@ class MataKuliahController extends Controller
      */
     public function index(Request $request)
     {
+        if ($request->searchbox) {
+            $mata_kuliah = $this->search($request->searchbox);
+        } else {
+            $mata_kuliah = $this->mata_kuliah_model;
+        }
+        $mata_kuliah = $mata_kuliah->paginate(15);
+        $mata_kuliah->appends($request->all())->render();
+
         $breadcrumbs = $request->segments();
         $breadcrumbs = $this->breadcrumbs_helper->make($breadcrumbs);
         $data = [
             'title' => 'Mata Kuliah',
             'breadcrumbs' => $breadcrumbs,
-            'mata_kuliah' => $this->mata_kuliah_model->paginate($request->perpage ? $request->perpage : 15)
+            'mata_kuliah' => $mata_kuliah
         ];
 
         echo "<script>var mata_kuliah = " . $data['mata_kuliah']->toJson() . "</script>";
 
         return view('mata_kuliah.list', $data);
     }
+
+    public function search($string = "")
+    {
+        $mata_kuliah = $this->mata_kuliah_model->where('nama_matkul', 'like', '%' . $string . '%')->orwhere('kode_matkul', 'like', '%' . $string . '%');
+        return $mata_kuliah;
+    }
+
 
     /**
      * Show the form for creating a new resource.

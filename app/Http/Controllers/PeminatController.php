@@ -30,17 +30,32 @@ class PeminatController extends Controller
      */
     public function index(Request $request)
     {
+        if ($request->searchbox) {
+            $peminat = $this->search($request->searchbox);
+        } else {
+            $peminat = $this->peminat_model;
+        }
+        $peminat = $peminat->paginate(15);
+        $peminat->appends($request->all())->render();
+
         $breadcrumbs = $request->segments();
         $breadcrumbs = $this->breadcrumbs_helper->make($breadcrumbs);
         $data = [
             'title' => 'Peminat',
             'breadcrumbs' => $breadcrumbs,
-            'peminat' => $this->peminat_model->paginate(15)
+            'peminat' => $peminat
         ];
 
         echo "<script>var peminat = " . $data['peminat']->toJson() . "</script>";
 
         return view('peminat.list', $data);
+    }
+
+
+    public function search($string = "")
+    {
+        $peminat = $this->peminat_model->where('tahun_ajaran', 'like', '%' . $string . '%')->orwhere('semester', 'like', '%' . $string . '%');
+        return $peminat;
     }
 
     /**

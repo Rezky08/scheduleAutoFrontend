@@ -26,17 +26,31 @@ class DosenController extends Controller
      */
     public function index(Request $request)
     {
+        if ($request->searchbox) {
+            $dosen = $this->search($request->searchbox);
+        } else {
+            $dosen = $this->dosen_model;
+        }
+        $dosen = $dosen->paginate(15);
+        $dosen->appends($request->all())->render();
+
         $breadcrumbs = $request->segments();
         $breadcrumbs = $this->breadcrumbs_helper->make($breadcrumbs);
         $data = [
             'title' => 'Dosen',
             'breadcrumbs' => $breadcrumbs,
-            'dosen' => $this->dosen_model->paginate(15)
+            'dosen' => $dosen
         ];
 
         echo "<script>var dosen = " . $data['dosen']->toJson() . "</script>";
 
         return view('dosen.list', $data);
+    }
+
+    public function search($string = "")
+    {
+        $dosen = $this->dosen_model->where('nama_dosen', 'like', '%' . $string . '%')->orwhere('kode_dosen', 'like', '%' . $string . '%');
+        return $dosen;
     }
 
     /**

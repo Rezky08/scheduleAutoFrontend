@@ -26,18 +26,33 @@ class RuangController extends Controller
      */
     public function index(Request $request)
     {
+        if ($request->searchbox) {
+            $ruang = $this->search($request->searchbox);
+        } else {
+            $ruang = $this->ruang_model;
+        }
+        $ruang = $ruang->paginate(15);
+        $ruang->appends($request->all())->render();
+
         $breadcrumbs = $request->segments();
         $breadcrumbs = $this->breadcrumbs_helper->make($breadcrumbs);
         $data = [
             'title' => 'Ruang',
             'breadcrumbs' => $breadcrumbs,
-            'ruang' => $this->ruang_model->paginate(15)
+            'ruang' => $ruang
         ];
 
         echo "<script>var ruang = " . $data['ruang']->toJson() . "</script>";
 
         return view('ruang.list', $data);
     }
+
+    public function search($string = "")
+    {
+        $ruang = $this->ruang_model->where('nama_ruang', 'like', '%' . $string . '%')->orwhere('kapasitas', 'like', '%' . $string . '%');
+        return $ruang;
+    }
+
 
     /**
      * Show the form for creating a new resource.

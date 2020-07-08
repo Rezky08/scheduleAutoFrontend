@@ -26,18 +26,33 @@ class HariController extends Controller
      */
     public function index(Request $request)
     {
+        if ($request->searchbox) {
+            $hari = $this->search($request->searchbox);
+        } else {
+            $hari = $this->hari_model;
+        }
+        $hari = $hari->paginate(15);
+        $hari->appends($request->all())->render();
+
         $breadcrumbs = $request->segments();
         $breadcrumbs = $this->breadcrumbs_helper->make($breadcrumbs);
         $data = [
             'title' => 'Hari',
             'breadcrumbs' => $breadcrumbs,
-            'hari' => $this->hari_model->paginate(15)
+            'hari' => $hari
         ];
 
         echo "<script>var hari = " . $data['hari']->toJson() . "</script>";
 
         return view('hari.list', $data);
     }
+
+    public function search($string = "")
+    {
+        $hari = $this->hari_model->where('nama_hari', 'like', '%' . $string . '%');
+        return $hari;
+    }
+
 
     /**
      * Show the form for creating a new resource.

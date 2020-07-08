@@ -26,18 +26,34 @@ class SesiController extends Controller
      */
     public function index(Request $request)
     {
+        if ($request->searchbox) {
+            $sesi = $this->search($request->searchbox);
+        } else {
+            $sesi = $this->sesi_model;
+        }
+        $sesi = $sesi->paginate(15);
+        $sesi->appends($request->all())->render();
+
         $breadcrumbs = $request->segments();
         $breadcrumbs = $this->breadcrumbs_helper->make($breadcrumbs);
         $data = [
             'title' => 'Sesi',
             'breadcrumbs' => $breadcrumbs,
-            'sesi' => $this->sesi_model->paginate(15)
+            'sesi' => $sesi
         ];
 
         echo "<script>var sesi = " . $data['sesi']->toJson() . "</script>";
 
         return view('sesi.list', $data);
     }
+
+
+    public function search($string = "")
+    {
+        $sesi = $this->sesi_model->where('sesi_mulai', 'like', '%' . $string . '%')->orwhere('sesi_selesai', 'like', '%' . $string . '%');
+        return $sesi;
+    }
+
 
     /**
      * Show the form for creating a new resource.
