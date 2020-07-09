@@ -1065,3 +1065,7 @@ INSERT INTO peminat_detail(peminat_id,kode_matkul,jumlah_peminat,created_at) VAL
 INSERT INTO `semester_detail` (`id`, `semester`, `keterangan`, `created_at`, `updated_at`, `deleted_at`) VALUES
 (1, 'E', 'Genap', NOW(), NULL, NULL),
 (2, 'O', 'Ganjil', NOW(), NULL, NULL);
+
+INSERT INTO `process_item` (`id`, `process_name`, `reference_table`, `created_at`, `updated_at`, `deleted_at`) VALUES
+(1, 'algen kelompok dosen', '\\App\\KelompokDosen::class', NULL, NULL, NULL),
+(2, 'algen jadwal', '\\App\\Jadwal::class', NULL, NULL, NULL);
