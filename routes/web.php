@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+Route::get('/test', 'TestController@index');
 Route::get('/', 'HomeController@index');
 Route::get('/master', function () {
     return Redirect::to('/');
@@ -91,3 +92,7 @@ Route::get('/master/peminat/detail/{idpeminat}/hapus/{id}', 'PeminatDetailContro
 Route::post('/master/peminat/detail/{idpeminat}/tambah/batch/preview', 'PeminatDetailBatchController@validationInput');
 Route::get('/master/peminat/detail/{idpeminat}/tambah/batch/preview', 'PeminatDetailBatchController@create');
 Route::post('/master/peminat/detail/{idpeminat}/tambah/batch', 'PeminatDetailBatchController@store');
+
+Route::get('/penjadwalan/kelompok-dosen', 'KelompokDosenController@index');
+Route::get('/penjadwalan/kelompok-dosen/tambah', 'KelompokDosenController@create');
+Route::post('/penjadwalan/kelompok-dosen/tambah', 'KelompokDosenController@store');
