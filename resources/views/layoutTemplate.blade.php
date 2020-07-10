@@ -78,7 +78,7 @@
         <div id="penjadwalan" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
           <div class="bg-white py-2 collapse-inner rounded">
             <h6 class="collapse-header">Data Penjadwalan:</h6>
-            <a class="collapse-item" href="#">Kelompok Mata Kuliah</a>
+            <a class="collapse-item" href="{{URL::to('/penjadwalan/kelompok-dosen')}}">Kelompok Mata Kuliah</a>
             <a class="collapse-item" href="#">Jadwal</a>
           </div>
         </div>
