@@ -29,4 +29,8 @@ class KelompokDosen extends Model
     {
         return $this->hasMany(KelompokDosenDetail::class, 'kelompok_dosen_id', 'id');
     }
+    public function process_log()
+    {
+        return $this->hasOne(ProcessLog::class, 'item_key', 'id');
+    }
 }

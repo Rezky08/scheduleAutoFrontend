@@ -18,16 +18,20 @@ class ProcessLog extends Model
             [AlgenResultLog::class, 'process_log_id', 'id']
         ],
         'delete' => [
-            'detail', 'algen_result'
+            'kelompok_dosen'
         ]
     ];
-
-    public function detail()
+    public function kelompok_dosen()
     {
-        return $this->hasMany(ProcessLogDetail::class, 'process_log_id', 'id');
+        return $this->belongsTo(KelompokDosen::class, 'item_key', 'id')->where('process_item_id', 1);
     }
-    public function algen_result()
+
+    public function scopeUnfinished($query)
     {
-        return $this->hasMany(AlgenResultLog::class, 'process_log_id', 'id');
+        return $query->where('status', '!=', 'SUCCESS')->where('status', '!=', 'FAILURE')->where('deleted_at', NULL);
+    }
+    public function process_item()
+    {
+        return $this->belongsTo(ProcessItem::class, 'process_item_id', 'id');
     }
 }
