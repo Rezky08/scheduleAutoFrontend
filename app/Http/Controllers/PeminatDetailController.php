@@ -38,11 +38,9 @@ class PeminatDetailController extends Controller
     public function index(Request $request, $id)
     {
         $peminat = $this->peminat_model->find($id);
-
+        $peminat_detail = $this->peminat_detail_model->where('peminat_id', $peminat->id);
         if ($request->searchbox) {
-            $peminat_detail = $this->search($peminat->peminat_detail(), $request->searchbox);
-        } else {
-            $peminat_detail = $this->peminat_detail_model;
+            $peminat_detail = $this->search($peminat_detail, $request->searchbox);
         }
         $peminat_detail = $peminat_detail->paginate(15);
         $peminat_detail->appends($request->all())->render();
@@ -64,7 +62,7 @@ class PeminatDetailController extends Controller
 
     public function search($model, $string = "")
     {
-        $model->leftJoin('mata_kuliah', 'peminat_detail.kode_matkul', '=', 'mata_kuliah.kode_matkul');
+        $model->leftJoin('mata_kuliah', 'mata_kuliah.kode_matkul', '=', 'peminat_detail.kode_matkul');
         $peminat_detail = $model->where('peminat_detail.kode_matkul', 'like', '%' . $string . '%')->orwhere('mata_kuliah.nama_matkul', 'like', '%' . $string . '%');
         return $peminat_detail;
     }
