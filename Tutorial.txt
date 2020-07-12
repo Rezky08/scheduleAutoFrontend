@@ -1,0 +1,61 @@
+Buat jalannin semuanya caranya begini gan
+
+PASTIIN : 
+1. openssl di extensi php jangan dibuka
+2. apache server udah nyala
+3. mysql server udah nyala
+4. redis-server nyala
+
+===========================================================
+REDIS
+1. buka cmd 
+2. ketik "bash" buat masuk bash linux di windows
+3. ketik redis-server
+4. kalo udah ready close aja gapapa
+
+===========================================================
+FLASK
+1. Buka cmd
+2. masuk ke folder python-engine
+contoh : "cd D:\KULIAH\KKP\COMPLEETE\python-engine"
+3. aktivasi virtualenv
+untuk windows 
+"Scripts\activate.bat"
+untuk linux
+"source bin\activate"
+4. tanda udah masuk ada nama virtualenv disebelum direktori
+contoh : 
+"(python-engine) D:\KULIAH\KKP\COMPLEETE\python-engine>"
+
+Kalau udah masuk
+set flask app nya dulu
+"set FLASK_APP=engine.py"
+"set FLASK_ENV=development"
+
+Kalau udah jalanin flask nya
+"flask run"
+kalo udah berhasil jangan diclose
+===========================================================
+CELERY
+masuk ke virtualenv sama kaya langkah FLASK 1-4
+kalau udah 
+"celery -A engine.celery worker -l info -P eventlet"
+
+kalau berhasil respon terakhir ini
+"[2020-04-30 10:41:26,295: INFO/MainProcess] celery@DESKTOP-TRSNNS5 ready."
+jangan di close, biarin aja
+
+===========================================================
+LARAVEL API
+
+1. pastiin db udah ok, kalo belum migrate dulu
+"php artisan migrate" or "php artisan migrate:fresh" 
+2. jalanin 
+"php artisan serve"
+3. buka tab console baru yang sebelumnya jangan di close
+"php artisan que:listen --timeout=0"
+=================SELESAI===================================
+SIAP SEMUA KAYAKNYA 
+
+
+
