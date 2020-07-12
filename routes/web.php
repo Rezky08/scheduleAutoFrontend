@@ -94,5 +94,14 @@ Route::get('/master/peminat/detail/{idpeminat}/tambah/batch/preview', 'PeminatDe
 Route::post('/master/peminat/detail/{idpeminat}/tambah/batch', 'PeminatDetailBatchController@store');
 
 Route::get('/penjadwalan/kelompok-dosen', 'KelompokDosenController@index');
+Route::get('/penjadwalan/kelompok-dosen/hapus/{id}', 'KelompokDosenController@destroy');
 Route::get('/penjadwalan/kelompok-dosen/tambah', 'KelompokDosenController@create');
 Route::post('/penjadwalan/kelompok-dosen/tambah', 'KelompokDosenController@store');
+
+Route::get('/penjadwalan/kelompok-dosen/detail/{id}', 'KelompokDosenDetailController@index');
+Route::get('/penjadwalan/kelompok-dosen/detail/{id}/tambah', 'KelompokDosenDetailController@create');
+Route::post('/penjadwalan/kelompok-dosen/detail/{id}/tambah', 'KelompokDosenDetailController@store');
+Route::get('/penjadwalan/kelompok-dosen/detail/{id}/hapus/{iddetail}', 'KelompokDosenDetailController@destroy');
+Route::get('/penjadwalan/kelompok-dosen/detail/{id}/ubah/{iddetail}', 'KelompokDosenDetailController@edit');
+Route::post('/penjadwalan/kelompok-dosen/detail/{id}/ubah/{iddetail}', 'KelompokDosenDetailController@update');
+Route::post('/penjadwalan/kelompok-dosen/detail/{id}/pelanggaran/simpan', 'KelompokDosenDetailController@updatePelanggaran');
