@@ -93,7 +93,7 @@
 
 <script>
     function deleteModal(id) {
-        let selected_element = kelompok_dosen.find(function (data) {
+        let selected_element = kelompok_dosen.data.find(function (data) {
             return data.id==id
          });
         let textString = "Apakah anda ingin menghapus Kelompok Dosen "+selected_element.id+" ?";

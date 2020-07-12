@@ -8,7 +8,7 @@
         <form action="" method="get">
             <div class="form-group">
                 <label for="">Peminat Mata Kuliah</label>
-                <select class="form-control" name="peminat_id" onchange="submit()">
+                <select  class="form-control" name="peminat_id" onchange="submit()">
                     <option
                     @if (!old('peminat_id',Request::input('peminat_id')))
                     selected
