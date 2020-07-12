@@ -4,6 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\DB;
 
 class KelompokDosenDetail extends Model
 {
@@ -23,5 +24,9 @@ class KelompokDosenDetail extends Model
     public function dosen()
     {
         return $this->belongsTo(Dosen::class, 'kode_dosen', 'kode_dosen');
+    }
+    public function scopeCountMengajar($query)
+    {
+        return $query->select(DB::raw('kode_dosen,count(*) as count'))->groupBy('kode_dosen');
     }
 }

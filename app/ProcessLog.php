@@ -14,13 +14,16 @@ class ProcessLog extends Model
     public $timestamps = true;
     public $relatedModel = [
         'update' => [
-            [ProcessLogDetail::class, 'process_log_id', 'id'],
-            [AlgenResultLog::class, 'process_log_id', 'id']
+            [ProcessParam::class, 'process_log_id', 'id']
         ],
         'delete' => [
             'kelompok_dosen'
         ]
     ];
+    public function process_param()
+    {
+        return $this->hasOne(ProcessParam::class, 'process_log_id', 'id');
+    }
     public function kelompok_dosen()
     {
         return $this->belongsTo(KelompokDosen::class, 'item_key', 'id')->where('process_item_id', 1);
