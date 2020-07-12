@@ -10,7 +10,7 @@
     <div class="col-md-6">
         <form action="" method="get" class="row justify-content-end">
             <div class="form-group">
-              <input type="text" class="form-control" name="num_form" placeholder="jumlah data">
+              <input type="number" class="form-control" name="num_form" placeholder="jumlah data">
             </div>
             <input type="hidden" name="last_num_form" value="{{$num_form}}">
             <button type="submit" class="btn btn-info float-right mb-3 mx-2">Tambah +</button>
