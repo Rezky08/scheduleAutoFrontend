@@ -10,6 +10,7 @@ use App\KelompokDosen;
 use App\Peminat;
 use App\PeminatDetail;
 use App\ProcessLog;
+use App\ProcessParam;
 use App\SemesterDetail;
 use BreadCrumbs;
 use Exception;
@@ -30,6 +31,7 @@ class KelompokDosenController extends Controller
     private $guzzl_request;
     private $python_url;
     private $process_log_model;
+    private $process_param_model;
 
     function __construct()
     {
@@ -41,6 +43,7 @@ class KelompokDosenController extends Controller
         $this->guzzl_request = new Client();
         $this->dosen_mata_kuliah_model = new DosenMatakuliah();
         $this->process_log_model = new ProcessLog();
+        $this->process_param_model = new ProcessParam();
         $this->python_url = "http://localhost:5000";
         $process_log = $this->process_log_model->unfinished()->get();
         $process_id = $process_log->pluck('id')->toArray();
@@ -178,7 +181,7 @@ class KelompokDosenController extends Controller
             'num_population' => (int) $request->num_population,
             'crossover_rate' => floatval($request->crossover_rate),
             'mutation_rate' => floatval($request->mutation_rate),
-            'timeout' => 0
+            'timeout' => $request->timeout ? $request->timeout : 0
         ];
         $params = $algen_params + $kelompok_mata_kuliah_params;
 
@@ -216,6 +219,13 @@ class KelompokDosenController extends Controller
                 $process_id = $this->process_log_model->insertGetId($data_insert);
 
                 Log::info('Send to Python Enginge ' . date('Y-m-d H:i:s'));
+                $data_insert = [
+                    'process_log_id' => $process_id,
+                    'parameters' => json_encode($params),
+                    'created_at' => new \DateTime
+                ];
+                $process_params = $this->process_param_model->insert($data_insert);
+
                 event(new AlgenKelompokDosenQueEvent($process_id));
             } catch (Exception $e) {
                 Log::error($e->getMessage());
@@ -280,6 +290,27 @@ class KelompokDosenController extends Controller
      */
     public function destroy($id)
     {
-        //
+
+        $kelompok_dosen = $this->kelompok_dosen_model->find($id);
+
+        if (!$kelompok_dosen) {
+            $message = [
+                'error' => "<strong>Kelompok Dosen Tidak Ditemukan!</strong>"
+            ];
+            return redirect('/penjadwalan/kelompok-dosen')->with($message);
+        }
+
+        $status = $kelompok_dosen->delete();
+        if ($status) {
+            $message = [
+                'success' => "<strong>'Berhasil Hapus Kelompok Dosen!'</strong>" . 'Kelompok Dosen ' . $kelompok_dosen->id . ' telah dihapus.'
+            ];
+            return redirect('/penjadwalan/kelompok-dosen')->with($message);
+        } else {
+            $message = [
+                'error' => 'Gagal Hapus Kelompok Dosen!'
+            ];
+            return redirect('/penjadwalan/kelompok-dosen')->with($message);
+        }
     }
 }
