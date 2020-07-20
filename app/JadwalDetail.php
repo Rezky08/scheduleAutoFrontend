@@ -16,4 +16,8 @@ class JadwalDetail extends Model
     {
         return $this->belongsTo(Jadwal::class, 'kode_jadwal', 'kode_jadwal');
     }
+    public function getTableColumns()
+    {
+        return $this->getConnection()->getSchemaBuilder()->getColumnListing($this->getTable());
+    }
 }

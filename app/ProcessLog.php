@@ -28,10 +28,14 @@ class ProcessLog extends Model
     {
         return $this->belongsTo(KelompokDosen::class, 'item_key', 'id')->where('process_item_id', 1);
     }
-
-    public function scopeUnfinished($query)
+    public function jadwal()
     {
-        return $query->where('status', '!=', 'SUCCESS')->where('status', '!=', 'FAILURE')->where('deleted_at', NULL);
+        return $this->belongsTo(KelompokDosen::class, 'item_key', 'id')->where('process_item_id', 2);
+    }
+
+    public function scopeUnfinished($query, $process_item)
+    {
+        return $query->where('status', '!=', 'SUCCESS')->where('status', '!=', 'FAILURE')->where('deleted_at', NULL)->where('process_item_id', $process_item);
     }
     public function process_item()
     {

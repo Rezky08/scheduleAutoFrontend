@@ -105,3 +105,14 @@ Route::get('/penjadwalan/kelompok-dosen/detail/{id}/hapus/{iddetail}', 'Kelompok
 Route::get('/penjadwalan/kelompok-dosen/detail/{id}/ubah/{iddetail}', 'KelompokDosenDetailController@edit');
 Route::post('/penjadwalan/kelompok-dosen/detail/{id}/ubah/{iddetail}', 'KelompokDosenDetailController@update');
 Route::post('/penjadwalan/kelompok-dosen/detail/{id}/pelanggaran/simpan', 'KelompokDosenDetailController@updatePelanggaran');
+
+Route::get('/penjadwalan/jadwal', 'JadwalController@index');
+Route::get('/penjadwalan/jadwal/tambah', 'JadwalController@create');
+Route::post('/penjadwalan/jadwal/tambah', 'JadwalController@store');
+
+Route::get('/penjadwalan/jadwal/detail/{id}', 'JadwalDetailController@index');
+Route::get('/penjadwalan/jadwal/detail/{id}/tambah', 'JadwalDetailController@create');
+Route::post('/penjadwalan/jadwal/detail/{id}/tambah', 'JadwalDetailController@store');
+Route::get('/penjadwalan/jadwal/detail/{id}/ubah/{iddetail}', 'JadwalDetailController@edit');
+Route::post('/penjadwalan/jadwal/detail/{id}/ubah/{iddetail}', 'JadwalDetailController@update');
+Route::get('/penjadwalan/jadwal/detail/{id}/hapus/{iddetail}', 'JadwalDetailController@destroy');

@@ -28,4 +28,12 @@ class Jadwal extends Model
     {
         return $this->belongsTo(SemesterDetail::class, 'semester', 'semester');
     }
+    public function process_log()
+    {
+        return $this->hasOne(ProcessLog::class, 'item_key', 'id')->where('process_log.process_item_id', 2);
+    }
+    public function getTableColumns()
+    {
+        return $this->getConnection()->getSchemaBuilder()->getColumnListing($this->getTable());
+    }
 }

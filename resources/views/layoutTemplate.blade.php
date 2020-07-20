@@ -79,7 +79,7 @@
           <div class="bg-white py-2 collapse-inner rounded">
             <h6 class="collapse-header">Data Penjadwalan:</h6>
             <a class="collapse-item" href="{{URL::to('/penjadwalan/kelompok-dosen')}}">Kelompok Mata Kuliah</a>
-            <a class="collapse-item" href="#">Jadwal</a>
+            <a class="collapse-item" href="{{URL::to('/penjadwalan/jadwal')}}">Jadwal</a>
           </div>
         </div>
       </li>

@@ -21,14 +21,23 @@ class EventServiceProvider extends ServiceProvider
         'App\Events\AlgenKelompokDosenQueEvent' => [
             'App\Listeners\AlgenKelompokDosenQueListener'
         ],
+        'App\Events\AlgenJadwalQueEvent' => [
+            'App\Listeners\AlgenJadwalQueListener'
+        ],
         'App\Events\AlgenKelompokDosenEvent' => [
             'App\Listeners\AlgenKelompokDosenListener'
+        ],
+        'App\Events\AlgenJadwalEvent' => [
+            'App\Listeners\AlgenJadwalListener'
         ],
         'App\Events\CheckAlgenResultEvent' => [
             'App\Listeners\CheckAlgenResultListener'
         ],
         'App\Events\UpdateStatusKelompokDosenEvent' => [
             'App\Listeners\UpdateStatusKelompokDosenListener'
+        ],
+        'App\Events\UpdateStatusJadwalEvent' => [
+            'App\Listeners\UpdateStatusJadwalListener'
         ],
 
     ];

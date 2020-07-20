@@ -2,16 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use App\DosenMatakuliah;
-use App\Events\AlgenKelompokDosenEvent;
-use App\Events\AlgenKelompokDosenQueEvent;
-use App\Events\UpdateStatusKelompokDosenEvent;
+use App\Events\AlgenJadwalEvent;
+use App\Events\AlgenJadwalQueEvent;
+use App\Events\UpdateStatusJadwalEvent;
+use App\Hari;
+use App\Jadwal;
 use App\KelompokDosen;
-use App\Peminat;
-use App\PeminatDetail;
 use App\ProcessLog;
 use App\ProcessParam;
-use App\SemesterDetail;
+use App\Ruang;
+use App\Sesi;
 use BreadCrumbs;
 use Exception;
 use GuzzleHttp\Client;
@@ -20,34 +20,33 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Validator;
 
-class KelompokDosenController extends Controller
+class JadwalController extends Controller
 {
     private $breadcrumbs_helper;
-    private $peminat_model;
-    private $peminat_detail_model;
-    private $semester_model;
+    private $jadwal_model;
     private $kelompok_dosen_model;
-    private $dosen_mata_kuliah_model;
+    private $ruang_model;
+    private $sesi_model;
+    private $hari_model;
     private $guzzle_request;
     private $python_url;
     private $process_log_model;
     private $process_param_model;
-
     function __construct()
     {
         $this->breadcrumbs_helper = new BreadCrumbs();
-        $this->peminat_model = new Peminat();
-        $this->peminat_detail_model = new PeminatDetail();
-        $this->semester_model = new SemesterDetail();
+        $this->jadwal_model = new Jadwal();
         $this->kelompok_dosen_model = new KelompokDosen();
+        $this->ruang_model = new Ruang();
+        $this->sesi_model = new Sesi();
+        $this->hari_model = new Hari();
         $this->guzzle_request = new Client();
-        $this->dosen_mata_kuliah_model = new DosenMatakuliah();
+        $this->python_url = "http://localhost:5000";
         $this->process_log_model = new ProcessLog();
         $this->process_param_model = new ProcessParam();
-        $this->python_url = "http://localhost:5000";
-        $process_log = $this->process_log_model->unfinished(1)->get();
+        $process_log = $this->process_log_model->unfinished(2)->get();
         $process_id = $process_log->pluck('id')->toArray();
-        event(new UpdateStatusKelompokDosenEvent($process_id));
+        event(new UpdateStatusJadwalEvent($process_id));
     }
 
     /**
@@ -58,31 +57,28 @@ class KelompokDosenController extends Controller
     public function index(Request $request)
     {
         if ($request->searchbox) {
-            $kelompok_dosen = $this->search($request->searchbox);
+            $jadwal = $this->search($request->searchbox);
         } else {
-            $kelompok_dosen = $this->kelompok_dosen_model;
+            $jadwal = $this->jadwal_model;
         }
-        $kelompok_dosen = $kelompok_dosen->paginate(15);
-        $kelompok_dosen->appends($request->all())->render();
+        $jadwal = $jadwal->paginate(15);
+        $jadwal->appends($request->all())->render();
         $breadcrumbs = $request->segments();
         $breadcrumbs = $this->breadcrumbs_helper->make($breadcrumbs);
         $data = [
-            'title' => 'Kelompok Dosen',
+            'title' => 'Jadwal',
             'breadcrumbs' => $breadcrumbs,
-            'kelompok_dosen' => $kelompok_dosen
+            'jadwal' => $jadwal
         ];
 
-        echo "<script>var kelompok_dosen = " . $data['kelompok_dosen']->toJson() . "</script>";
-
-        return view('kelompok_dosen.list', $data);
+        echo "<script>var jadwal = " . $data['jadwal']->toJson() . "</script>";
+        return view('jadwal.list', $data);
     }
-
 
     public function search($string = "")
     {
-        $this->kelompok_dosen->leftJoin('peminat', 'kelompok_dosen.peminat_id', '=', 'peminat.id');
-        $kelompok_dosen = $this->kelompok_dosen_model->where('peminat.tahun_ajaran', 'like', '%' . $string . '%')->orwhere('peminat.semester', 'like', '%' . $string . '%');
-        return $kelompok_dosen;
+        $jadwal = $this->jadwal_model->where('tahun_ajaran', 'like', '%' . $string . '%')->orwhere('semester', 'like', '%' . $string . '%');
+        return $jadwal;
     }
 
     /**
@@ -92,23 +88,26 @@ class KelompokDosenController extends Controller
      */
     public function create(Request $request)
     {
-        $peminat = $this->peminat_model->all();
-        $peminat_detail = [];
-        if ($request->peminat_id) {
-            $peminat_detail = $this->peminat_detail_model->where('peminat_id', $request->peminat_id);
-            $peminat_detail = $peminat_detail->paginate(15);
-            $peminat_detail->appends($request->all())->render();
+        $kelompok_dosen = $this->kelompok_dosen_model->all();
+        $kelompok_dosen_detail = [];
+        $kelompok_dosen_select = null;
+        if ($request->kelompok_dosen_id) {
+            $kelompok_dosen_select = $kelompok_dosen->find($request->kelompok_dosen_id);
+            $kelompok_dosen_detail = $kelompok_dosen_select->detail();
+            $kelompok_dosen_detail = $kelompok_dosen_detail->paginate(15);
+            $kelompok_dosen_detail->appends($request->all())->render();
         }
         $breadcrumbs = $request->segments();
         $breadcrumbs = $this->breadcrumbs_helper->make($breadcrumbs);
         $data = [
             'title' => 'Tambah Kelompok Dosen',
             'breadcrumbs' => $breadcrumbs,
-            'peminat' => $peminat,
-            'peminat_detail' => $peminat_detail,
-            'action' => URL::to('/penjadwalan/kelompok-dosen/tambah')
+            'kelompok_dosen' => $kelompok_dosen,
+            'kelompok_dosen_select' => $kelompok_dosen_select,
+            'kelompok_dosen_detail' => $kelompok_dosen_detail,
+            'action' => URL::to('/penjadwalan/jadwal/tambah')
         ];
-        return view('kelompok_dosen.form', $data);
+        return view('jadwal.form', $data);
     }
 
     /**
@@ -120,16 +119,12 @@ class KelompokDosenController extends Controller
     public function store(Request $request)
     {
         $rules = [
-            'peminat_id' => ['required', 'exists:peminat,id,deleted_at,NULL'],
-            'min_perkelas' => ['required', 'integer', 'min:1'],
-            'max_perkelas' => ['required', 'integer', 'min:1'],
-            'min_perlab' => ['required', 'integer', 'min:1'],
-            'max_perlab' => ['required', 'integer', 'min:1'],
-            'max_kelompok' => ['required', 'integer', 'min:1'],
             'crossover_rate' => ['required', 'regex:/^(?:0*(?:\.\d+)?|1(\.0*)?)$/'],
             'mutation_rate' => ['required', 'regex:/^(?:0*(?:\.\d+)?|1(\.0*)?)$/'],
             'num_generation' => ['required', 'min:1'],
             'num_population' => ['required', 'min:1'],
+            'kelompok_dosen_id' => ['required', 'exists:kelompok_dosen,id,deleted_at,NULL'],
+            'timeout' => ['sometimes', 'integer']
         ];
         $message = [
             'crossover_rate.regex' => "Nilai :attribute antara 0.1 sampai 1.0",
@@ -140,63 +135,58 @@ class KelompokDosenController extends Controller
             return redirect()->back()->withErrors($validator->errors())->withInput();
         }
 
-        $peminat_detail = $this->peminat_model->find($request->peminat_id)->peminat_detail;
-        $peminat_detail = $peminat_detail->map(function ($item, $index) {
+        $kelompok_dosen = $this->kelompok_dosen_model->find($request->kelompok_dosen_id);
+        $kelompok_dosen_detail = $kelompok_dosen->detail;
+        $kelompok_dosen_detail = $kelompok_dosen_detail->map(function ($item) {
             $merged = collect($item->toArray());
-            $merged = $merged->merge($item->mata_kuliah->toArray());
-            return $merged->except('id')->toArray();
+            $mata_kuliah = collect($item->mata_kuliah)->except('id')->toArray();
+            $dosen = collect($item->dosen)->except('id')->toArray();
+            $merged = $merged->merge($mata_kuliah);
+            $merged = $merged->merge($dosen);
+            return $merged->toArray();
         });
-        $dosen_mata_kuliah = $this->dosen_mata_kuliah_model->all();
-        $dosen_mata_kuliah = $dosen_mata_kuliah->groupBy('kode_matkul');
-        $dosen_mata_kuliah = $dosen_mata_kuliah->map(function ($item, $key) {
-            return [
-                'kode_matkul' => $key,
-                'kode_dosen' => $item->pluck('kode_dosen')->toArray()
-            ];
-        })->values();
 
-        // create pembagian mata kuliah params
-        $kelompok_mata_kuliah_params = [
-            'peminat_params' => $peminat_detail->toArray(),
-            'peminat_props' => [
-                'min_perkelas' => $request->min_perkelas,
-                'max_perkelas' => $request->max_perkelas,
-                'min_perlab' => $request->min_perlab,
-                'max_perlab' => $request->max_perlab
-            ]
-        ];
-        foreach ($kelompok_mata_kuliah_params['peminat_props'] as $key => $value) {
-            $kelompok_mata_kuliah_params['peminat_props'][$key] = (int) $value;
-        }
+        $ruang = $this->ruang_model->all();
+        $ruang = $ruang->map(function ($item) {
+            $item = collect($item->toArray());
+            return $item->except('id')->toArray();
+        });
 
-        // algen kelompok dosen params
-        $algen_params = [
+        $sesi = $this->sesi_model->all();
+        $sesi = $sesi->map(function ($item) {
+            $item = collect($item->toArray());
+            return $item->except('id')->toArray();
+        });
+
+        $hari = $this->hari_model->all();
+
+        $params = [
             'nn_params' => [
-                'matkul_dosen' => $dosen_mata_kuliah->toArray()
-            ],
-            'rules' => [
-                'max_kelompok' => (int) $request->max_kelompok
+                'ruang' => $ruang->toArray(),
+                'sesi' => $sesi->toArray(),
+                'hari' => $hari->pluck('nama_hari')->toArray(),
+                'mata_kuliah' => $kelompok_dosen_detail->toArray()
             ],
             'num_generation' => (int) $request->num_generation,
             'num_population' => (int) $request->num_population,
             'crossover_rate' => floatval($request->crossover_rate),
             'mutation_rate' => floatval($request->mutation_rate),
-            'timeout' => $request->timeout ? $request->timeout : 0
+            'timeout' => $request->timeout ? $request->timeout : 0,
         ];
-        $params = $algen_params + $kelompok_mata_kuliah_params;
 
         // insert kelompok dosen
         try {
-            $url = $this->python_url . "/dosen";
+            $url = $this->python_url . "/jadwal";
             $res = $this->guzzle_request->post($url, ['json' => $params]);
-            $kelompok_dosen_id = null;
+            $jadwal_id = null;
             if ($res->getStatusCode() == 200) {
                 $data_insert = [
-                    'peminat_id' => $request->peminat_id,
+                    'tahun_ajaran' => $kelompok_dosen->peminat->tahun_ajaran,
+                    'semester' => $kelompok_dosen->peminat->semester,
                     'created_at' => new \DateTime
                 ];
                 try {
-                    $kelompok_dosen_id = $this->kelompok_dosen_model->insertGetId($data_insert);
+                    $jadwal_id = $this->jadwal_model->insertGetId($data_insert);
                 } catch (Exception $e) {
                     Log::error($e->getMessage());
                     $message = [
@@ -211,8 +201,8 @@ class KelompokDosenController extends Controller
             // insert process_log
             try {
                 $data_insert = [
-                    'process_item_id' => 1,
-                    'item_key' => $kelompok_dosen_id,
+                    'process_item_id' => 2,
+                    'item_key' => $jadwal_id,
                     'celery_id' => $res->celery_id,
                     'created_at' => new \DateTime
                 ];
@@ -226,7 +216,7 @@ class KelompokDosenController extends Controller
                 ];
                 $process_params = $this->process_param_model->insert($data_insert);
 
-                event(new AlgenKelompokDosenQueEvent($process_id));
+                event(new AlgenJadwalQueEvent($process_id));
             } catch (Exception $e) {
                 Log::error($e->getMessage());
                 $message = [
@@ -245,7 +235,7 @@ class KelompokDosenController extends Controller
         $message = [
             'success' => "<strong>Proses Sedang Berjalan</strong>"
         ];
-        return redirect('/penjadwalan/kelompok-dosen')->with($message);
+        return redirect('/penjadwalan/jadwal')->with($message);
     }
 
     /**
@@ -290,27 +280,6 @@ class KelompokDosenController extends Controller
      */
     public function destroy($id)
     {
-
-        $kelompok_dosen = $this->kelompok_dosen_model->find($id);
-
-        if (!$kelompok_dosen) {
-            $message = [
-                'error' => "<strong>Kelompok Dosen Tidak Ditemukan!</strong>"
-            ];
-            return redirect('/penjadwalan/kelompok-dosen')->with($message);
-        }
-
-        $status = $kelompok_dosen->delete();
-        if ($status) {
-            $message = [
-                'success' => "<strong>'Berhasil Hapus Kelompok Dosen!'</strong>" . 'Kelompok Dosen ' . $kelompok_dosen->id . ' telah dihapus.'
-            ];
-            return redirect('/penjadwalan/kelompok-dosen')->with($message);
-        } else {
-            $message = [
-                'error' => 'Gagal Hapus Kelompok Dosen!'
-            ];
-            return redirect('/penjadwalan/kelompok-dosen')->with($message);
-        }
+        //
     }
 }
