@@ -31,6 +31,6 @@ class KelompokDosen extends Model
     }
     public function process_log()
     {
-        return $this->hasOne(ProcessLog::class, 'item_key', 'id');
+        return $this->hasOne(ProcessLog::class, 'item_key', 'id')->where('process_log.process_item_id', 1);
     }
 }

@@ -285,7 +285,7 @@ class JadwalController extends Controller
             $message = [
                 'error' => "<strong>Jadwal Tidak Ditemukan!</strong>"
             ];
-            return redirect('/penjadwalan/jadwal/')->with($message);
+            return redirect('/penjadwalan/jadwal')->with($message);
         }
 
         $status = $jadwal->delete();
