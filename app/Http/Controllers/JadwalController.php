@@ -280,6 +280,25 @@ class JadwalController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $jadwal = $this->jadwal_model->find($id);
+        if (!$jadwal) {
+            $message = [
+                'error' => "<strong>Jadwal Tidak Ditemukan!</strong>"
+            ];
+            return redirect('/penjadwalan/jadwal/')->with($message);
+        }
+
+        $status = $jadwal->delete();
+        if ($status) {
+            $message = [
+                'success' => "<strong>'Berhasil Hapus Jadwal!'</strong>" . 'Jadwal ' . $jadwal->id . ' telah dihapus.'
+            ];
+            return redirect('/penjadwalan/jadwal')->with($message);
+        } else {
+            $message = [
+                'error' => 'Gagal Hapus Jadwal !'
+            ];
+            return redirect('/penjadwalan/jadwal')->with($message);
+        }
     }
 }

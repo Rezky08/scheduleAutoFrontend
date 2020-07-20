@@ -109,6 +109,7 @@ Route::post('/penjadwalan/kelompok-dosen/detail/{id}/pelanggaran/simpan', 'Kelom
 Route::get('/penjadwalan/jadwal', 'JadwalController@index');
 Route::get('/penjadwalan/jadwal/tambah', 'JadwalController@create');
 Route::post('/penjadwalan/jadwal/tambah', 'JadwalController@store');
+Route::get('/penjadwalan/jadwal/hapus/{id}', 'JadwalController@destroy');
 
 Route::get('/penjadwalan/jadwal/detail/{id}', 'JadwalDetailController@index');
 Route::get('/penjadwalan/jadwal/detail/{id}/tambah', 'JadwalDetailController@create');
