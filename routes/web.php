@@ -107,6 +107,7 @@ Route::post('/penjadwalan/kelompok-dosen/detail/{id}/ubah/{iddetail}', 'Kelompok
 Route::post('/penjadwalan/kelompok-dosen/detail/{id}/pelanggaran/simpan', 'KelompokDosenDetailController@updatePelanggaran');
 
 Route::get('/penjadwalan/jadwal', 'JadwalController@index');
+Route::get('/penjadwalan/jadwal/export/{id}', 'JadwalController@download');
 Route::get('/penjadwalan/jadwal/tambah', 'JadwalController@create');
 Route::post('/penjadwalan/jadwal/tambah', 'JadwalController@store');
 Route::get('/penjadwalan/jadwal/hapus/{id}', 'JadwalController@destroy');

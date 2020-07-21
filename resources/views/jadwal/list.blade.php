@@ -58,6 +58,12 @@
                                     Detail
                                 </span>
                             </a>
+                            <a class="dropdown-item" href="{{URL::to('/penjadwalan/jadwal/export/'.$item->id)}}">
+                                <span>
+                                    <i class="fas fa-download"></i>
+                                    Export
+                                </span>
+                            </a>
                             <div class="dropdown-divider"></div>
                             <a class="dropdown-item" data-toggle="modal" data-target="#modelId" onclick="deleteModal({{$item->id}})">
                                 <span>

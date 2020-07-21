@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use App\Events\AlgenJadwalEvent;
 use App\Events\AlgenJadwalQueEvent;
 use App\Events\UpdateStatusJadwalEvent;
+use App\Exports\ExportJadwal;
 use App\Hari;
 use App\Jadwal;
+use App\JadwalDetail;
 use App\KelompokDosen;
 use App\ProcessLog;
 use App\ProcessParam;
@@ -19,11 +21,15 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Validator;
+use Maatwebsite\Excel\Facades\Excel;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class JadwalController extends Controller
 {
     private $breadcrumbs_helper;
     private $jadwal_model;
+    private $jadwal_detail_model;
     private $kelompok_dosen_model;
     private $ruang_model;
     private $sesi_model;
@@ -36,6 +42,7 @@ class JadwalController extends Controller
     {
         $this->breadcrumbs_helper = new BreadCrumbs();
         $this->jadwal_model = new Jadwal();
+        $this->jadwal_detail_model = new JadwalDetail();
         $this->kelompok_dosen_model = new KelompokDosen();
         $this->ruang_model = new Ruang();
         $this->sesi_model = new Sesi();
@@ -236,6 +243,32 @@ class JadwalController extends Controller
             'success' => "<strong>Proses Sedang Berjalan</strong>"
         ];
         return redirect('/penjadwalan/jadwal')->with($message);
+    }
+
+    public function download($id)
+    {
+        $rules = ['id' => ['required', 'exists:jadwal,id,deleted_at,NULL']];
+        $validator = Validator::make(['id' => $id], $rules);
+        if ($validator->fails()) {
+            $message = [
+                'error' => $validator->errors()->first()
+            ];
+            return redirect('/penjadwalan/jadwal')->with($message);
+        }
+
+        $jadwal = $this->jadwal_model->find($id);
+        $jadwal_detail = $jadwal->jadwal_detail;
+        if (!$jadwal_detail) {
+            $message = [
+                'error' => "Tidak Ada Jadwal Detail"
+            ];
+            return redirect('/penjadwalan/jadwal')->with($message);
+        }
+        $tahun_ajaran = preg_replace("/[^a-zA-Z0-9]+/", "", $jadwal->tahun_ajaran);
+        $filename = $jadwal->id . $jadwal->semester_detail->keterangan . $tahun_ajaran  . date('ymd');
+
+        $jadwal_export = new ExportJadwal($jadwal->id);
+        return Excel::download($jadwal_export, $filename . '.xlsx');
     }
 
     /**
