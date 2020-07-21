@@ -79,8 +79,8 @@ class SesiController extends Controller
     public function store(Request $request)
     {
         $rules = [
-            'sesi_mulai' => ['required', 'date_format:H:i', 'unique:sesi,sesi_mulai,NULL,id,deleted_at,NULL'],
-            'sesi_selesai' => ['required', 'date_format:H:i', 'unique:sesi,sesi_selesai,NULL,id,deleted_at,NULL'],
+            'sesi_mulai' => ['required', 'date_format:H:i', 'unique:sesi,sesi_mulai,NULL,id,deleted_at,NULL', 'before:sesi_selesai'],
+            'sesi_selesai' => ['required', 'date_format:H:i', 'unique:sesi,sesi_selesai,NULL,id,deleted_at,NULL', 'after:sesi_mulai'],
         ];
         $validator = Validator::make($request->all(), $rules);
         if ($validator->fails()) {
@@ -162,8 +162,8 @@ class SesiController extends Controller
             $request->merge($reqData);
         }
         $rules = [
-            'sesi_mulai' => ['required', 'date_format:H:i', 'unique:sesi,sesi_mulai,' . $id . ',id,deleted_at,NULL'],
-            'sesi_selesai' => ['required', 'date_format:H:i', 'unique:sesi,sesi_selesai,' . $id . ',id,deleted_at,NULL'],
+            'sesi_mulai' => ['required', 'date_format:H:i', 'unique:sesi,sesi_mulai,' . $id . ',id,deleted_at,NULL', 'before:sesi_selesai'],
+            'sesi_selesai' => ['required', 'date_format:H:i', 'unique:sesi,sesi_selesai,' . $id . ',id,deleted_at,NULL', 'after:sesi_mulai'],
         ];
         $validator = Validator::make($request->all(), $rules);
         if ($validator->fails()) {

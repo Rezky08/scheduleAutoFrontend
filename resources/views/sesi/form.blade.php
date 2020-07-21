@@ -26,7 +26,7 @@
     </div>
 
     <div class="form-group">
-        <label for="">Sesi Mulai</label>
+        <label for="">Sesi Selesai</label>
         <input type="time" class="form-control" id="datetimepicker5" name="sesi_selesai"
         placeholder="Masukan Nama Sesian"
         @isset($sesi)

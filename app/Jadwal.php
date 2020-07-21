@@ -16,7 +16,7 @@ class Jadwal extends Model
             [JadwalDetail::class, 'jadwal_id', 'id']
         ],
         'delete' => [
-            'peminat_detail', 'kelompok_dosen'
+            'peminat_detail', 'kelompok_dosen', 'process_log'
         ]
     ];
 

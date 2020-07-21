@@ -17,7 +17,7 @@ class KelompokDosen extends Model
             [KelompokDosenDetail::class, 'kelompok_dosen_id', 'id']
         ],
         'delete' => [
-            'detail'
+            'detail', 'process_log'
         ]
     ];
 
